@@ -1,0 +1,34 @@
+Package: RiboSeeker
+Title: A Package for Ribosome Profiling Data Analysis and Visualization
+Version: 0.0.0.9000
+Authors@R: 
+    person(given = "Ning",
+           family = "Zhang",
+           role = c("aut", "cre"),
+           email = "nzhang@stowers.org")
+Description: Ribosome profiling is a technology for determining translation activity by 
+sequencing ribosome protected mRNA fragments. We developed RiboSeeker, an end-to-end package 
+for ribosome profiling data analysis. RiboSeeker consists of two main components: data 
+processing and downstream analysis at single nucleotide resolution. The first component was 
+written in Snakemake, a workflow management language, for scalable and reproducible data 
+processing. Taking raw FASTQ reads, the workflow performs adapter sequence trimming, RNA 
+contamination removal, and alignment to a reference genome. Next, starting from an alignment 
+file, a variety of downstream analysis and visualization functionalities were implemented in 
+R, such as read length distribution, genomic feature distribution of aligned reads, and 
+metagene plots. Based on the metagene plots, users can define the desired read length and 
+P-site offset, and further measure the translation of open reading frames (ORFs) by calculating 
+translation efficiency and discover novel ORFs by computing ORFscore. Altogether, RiboSeeker 
+covers the essential data processing and analysis steps for ribosome profiling experiments.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.1
+biocViews:
+Imports: 
+    dplyr,
+    GenomicAlignments,
+    GenomicFeatures,
+    GenomicRanges,
+    ggplot2,
+    Rsamtools
