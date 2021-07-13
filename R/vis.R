@@ -262,8 +262,8 @@ readGenomeDistPlot = function(featureDF, type=c('count', 'pct')) {
 #' @importFrom ggplot2 ggplot aes geom_bar position_dodge facet_grid xlab ylab geom_vline
 #' geom_text scale_fill_manual
 #'
-metagenePlot = function(metagene, color=ifelse(metagene$mode == 1, 'steelblue',
-  c('red1', 'steelblue')), metageneFun=c('mean', 'median')) {
+metagenePlot = function(metagene, color=ifelse(metagene$mode == 1, list('steelblue'),
+  list(c('red1', 'steelblue')))[[1]], metageneFun=c('mean', 'median')) {
   # sanity check
   if(!(is.list(metagene) & !is.null(names(metagene)) & length(metagene) == 3 &
     all(names(metagene) == c('metagene', 'region', 'mode')))) {
@@ -331,10 +331,10 @@ metagenePlot = function(metagene, color=ifelse(metagene$mode == 1, 'steelblue',
       geom_text(mapping=aes(hjust=0.5, vjust=1, x=metageneMaxPosition, y=Inf,
       label=as.character(metageneMaxPosition))) + .plot_theme()
   } else if(metagene$mode == 2) {
-    metageneStartMaxPosition = plotDF[plotDF$type == 'Start', 'position'](which.max(
-      plotDF[plotDF$type == 'Start', 'value']))
-    metageneEndMaxPosition = plotDF[plotDF$type == 'End', 'position'](which.max(
-      plotDF[plotDF$type == 'End', 'value']))
+    metageneStartMaxPosition = plotDF[plotDF$type == 'Start', 'position'][which.max(
+      plotDF[plotDF$type == 'Start', 'value'])]
+    metageneEndMaxPosition = plotDF[plotDF$type == 'End', 'position'][which.max(
+      plotDF[plotDF$type == 'End', 'value'])]
 
     p = ggplot(plotDF, aes(x=position, y=value, fill=type)) + geom_bar(stat='identity',
       position=position_dodge()) + xlab('Position') + ylab('Normalized Read Counts') +
@@ -350,7 +350,7 @@ metagenePlot = function(metagene, color=ifelse(metagene$mode == 1, 'steelblue',
         y=Inf, label=as.character(metageneEndMaxPosition)), hjust=0.5, vjust=1) +
       scale_fill_manual(values=color, name='', breaks=c('Start', 'End'),
         labels=c('Coding start', 'Coding end')) +
-      .plot_theme()
+      theme(legend.position='top') + .plot_theme()
   }
 
   return(p)
