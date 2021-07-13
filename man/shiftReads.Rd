@@ -7,7 +7,7 @@
 shiftReads(bam, readLens = NULL, shiftLens = NULL, fiveEndOnly = TRUE)
 }
 \arguments{
-\item{bam}{A \code{\link[GenomicAlignments]{GAlignments}} object of aligned reads.
+\item{bam}{A \code{GAlignments} object of aligned reads.
 (Required).}
 
 \item{readLens}{A vector of read lengths to use (positive). If \code{NULL}, all
@@ -23,9 +23,8 @@ and \code{shiftLens} is a single value, all reads will be shifted by this length
 (Default: TRUE).}
 }
 \value{
-If \code{fiveEndOnly} is \code{TRUE}, return a \code{\link[GenomicRanges]{GRanges}}
-object of shifted reads. Otherwise, return a \code{\link[GenomicAlignments]{GAlignments}}
-object of shifted reads.
+If \code{fiveEndOnly} is \code{TRUE}, return a \code{GRanges} object of shifted
+reads. Otherwise, return a \code{GAlignments} object of shifted reads.
 }
 \description{
 Shift the 5'-end of reads of towards downstream direction. Ribosome

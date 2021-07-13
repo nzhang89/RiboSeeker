@@ -151,8 +151,8 @@
 
   # transcripts to keep
   txKeep = names(readsSum)[1:nTx]
-  metageneCDSStart = metagene[[1]][txKeep, ]
-  metageneCDSEnd = metagene[[2]][txKeep, ]
+  metageneCDSStart = metagene[[1]][which(rownames(metagene[[1]]) %in% txKeep), ]
+  metageneCDSEnd = metagene[[2]][which(rownames(metagene[[2]]) %in% txKeep), ]
 
   # subset metagene
   metagene = list(start=metageneCDSStart, end=metageneCDSEnd)
@@ -165,8 +165,8 @@
 #' @param metagene A matrix of read counts or a list of two matrices representing read counts
 #' in CDS start and end regions. Each row is a transcript, each column is a position, and
 #' value represents read counts in a transcript at a position.
-#' @param mode A numeric variable (1 or 2) indicating if metagene is a single matrix (mode is
-#' 1) or a list of two matrices (mode is 2).
+#' @param mode A numeric variable (1 or 2) indicating if metagene is a single matrix (mode
+#' is 1) or a list of two matrices (mode is 2).
 #' @param naVal A numeric variable to replace na with. (Default: 0).
 #'
 #' @return A matrix or a list of two matrices with values normalized as the row-wise relative
@@ -197,17 +197,17 @@
 #' specified, metagene will be calculated for the regions given in \code{regionGR}. Otherwise,
 #' \code{txdb} must be specified. If \code{txList} is specified, metagene will be calculated in
 #' the CDS start and end regions for the transcripts specified. If \code{txList} is not
-#' specified, random transcripts will be sampled and metagene matrix will be calculated in the
-#' CDS start and end regions. Also, the 5'-end position will be kept for the reads.
+#' specified, the highest-expressed transcripts will be selected and metagene matrix will be
+#' calculated in the CDS start and end regions. Also, the 5'-end position will be kept for the
+#' reads.
 #'
-#' @param bam A \code{\link[GenomicAlignments]{GAlignments}} object of aligned reads.
+#' @param bam A \code{GAlignments} object of aligned reads.
 #' (Required).
-#' @param regionGR A \code{\link[GenomicRanges]{GRanges}} object of the target regions to
-#' calculate metagene. Note that all regions must have equal width. If \code{regionGR} is set,
-#' \code{txdb} will be ignored. If \code{NULL}, \code{txdb} must be set. (Default: NULL).
-#' @param txdb A \code{\link[GenomicFeatures]{TxDb}} object of genome annotation. See
-#' \code{GenomicFeatures} package for more details. If \code{NULL}, \code{regionGR} must be
-#' set. (Default: NULL).
+#' @param regionGR A \code{GRanges} object of the target regions to calculate metagene. Note
+#' that all regions must have equal width. If \code{regionGR} is set, \code{txdb} will be
+#' ignored. If \code{NULL}, \code{txdb} must be set. (Default: NULL).
+#' @param txdb A \code{TxDb} object of genome annotation. See \code{GenomicFeatures} package
+#' for more details. If \code{NULL}, \code{regionGR} must be set. (Default: NULL).
 #' @param txList A character vector of transcript IDs. Note that the transcript IDs set here
 #' should also be found in the \code{txdb}. (Default: NULL).
 #' @param readLen A vector of read lengths to use (positive). If \code{NULL}, all
@@ -234,10 +234,15 @@
 #' region of CDS end site (not including CDS end site) if \code{txdb} is set but
 #' \code{regionGR} is \code{NULL}. (Default: 50).
 #'
-#' @return A \code{\link[base]{matrix}} of metagene if \code{regionGR} is set or A list of two
-#' \code{\link[base]{matrix}} of metagene in CDS start and end regions (with names of start and
-#' end). Each row is a transcript, each column is a position, and a value represents read
-#' counts or relative frequency for a transcript at a position.
+#' @return A \code{list} containing three elements. The first element is metagne, either one
+#' \code{matrix} if \code{regionGR} is set or a list of two \code{matrices} in CDS start and
+#' end regions (with names of start and end). Each row is a transcript, each column is a
+#' position, and a value represents read counts or relative frequency for a transcript at a
+#' position. The second element is the \code{GRanges} for the metagene, either one range if
+#' \code{regionGR} is set or a list of two ranges representing the CDS start and end regions.
+#' This list also contains information of the transcripts selected and flanking sequence
+#' lengths for CDS start and end. The third element is an internal variable indicating if
+#' \code{regionGR} is specified or not (1 means \code{regionGR} and 2 means not specified).
 #'
 #' @importFrom methods is as
 #' @importFrom GenomicAlignments qwidth
@@ -326,8 +331,10 @@ calcMetagene = function(bam, regionGR=NULL, txdb=NULL, txList=NULL, readLen=NULL
   bamGR = resize(bamGR, width=1)
 
   # metagene
+  metageneObj = NULL
   if(mode == 1) {
     metagene = .calcMetagene(bamGR, regionGR)
+    metageneObj = list(metagene=metagene, region=regionGR, mode=mode)
   } else if(mode == 2) {
     # get CDS start and end regions
     cdsRegions = .getCDSRegions(txdb, cdsStartUpstream, cdsStartDownstream,
@@ -357,7 +364,13 @@ calcMetagene = function(bam, regionGR=NULL, txdb=NULL, txList=NULL, readLen=NULL
       length(txKeep)))
     cdsRegionsStart = cdsRegions$start[which(cdsRegions$start$tx %in% txKeep)]
     cdsRegionsEnd = cdsRegions$end[which(cdsRegions$end$tx %in% txKeep)]
-    cdsRegions = list(start=cdsRegionsStart, end=cdsRegionsEnd, tx=txKeep)
+    cdsRegions = list(
+      start=cdsRegionsStart,
+      end=cdsRegionsEnd,
+      tx=txKeep,
+      startFlankLength=c(cdsStartUpstream, cdsStartDownstream),
+      endFlankLength=c(cdsEndUpstream, cdsEndDownstream)
+    )
 
     metageneCDSStart = .calcMetagene(bamGR, cdsRegions$start)
     metageneCDSEnd = .calcMetagene(bamGR, cdsRegions$end)
@@ -369,13 +382,18 @@ calcMetagene = function(bam, regionGR=NULL, txdb=NULL, txList=NULL, readLen=NULL
       message(sprintf('%s Keeping %d transcripts with the highest expression in CDS start
         and end regions.', .now(), nTx))
       metagene = .subsetMetagene(metagene, nTx)
+      cdsRegions$tx = rownames(metagene[[1]])
+      cdsRegions$start = cdsRegions$start[which(cdsRegions$start$tx %in% cdsRegions$tx)]
+      cdsRegions$end = cdsRegions$end[which(cdsRegions$end$tx %in% cdsRegions$tx)]
     }
+
+    metageneObj = list(metagene=metagene, region=cdsRegions, mode=mode)
   }
 
   # row-wise relative frequency
   if(relFreq) {
-    metagene = .calcRelFreq(metagene, mode=mode)
+    metageneObj$metagene = .calcRelFreq(metageneObj$metagene, mode=metageneObj$mode)
   }
 
-  return(metagene)
+  return(metageneObj)
 }

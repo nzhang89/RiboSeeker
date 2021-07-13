@@ -86,7 +86,7 @@
   orfDFNeg = orfDF %>% filter(strand == '-')
 
   orfDFPos = orfDFPos %>% arrange(group, seqnames, start, end)
-  orfDFNeg = orfDFNeg %>% arrange(group, seqnames, desc(end), start)
+  orfDFNeg = orfDFNeg %>% arrange(group, seqnames, dplyr::desc(end), start)
 
   orfDF = rbind(orfDFPos, orfDFNeg)
 
@@ -167,20 +167,18 @@
 #' the ORFScore is positive if the target frame (by default is frame 1) counts are larger than
 #' the counts of the other two frames, and negative otherwise.
 #'
-#' @param bam A \code{\link[GenomicRanges]{GRanges}} or
-#' \code{\link[GenomicAlignments]{GAlignments}} object of reads. Note that the reads should
-#' be already size selected and shifted. Check function \code{shiftReads} on how to shift
-#' reads. Also, for each read, only the 5'-most position is used. (Required).
-#' @param orfGRL A \code{\link[GenomicRanges]{GRangesList}} object of ORFs. We recommend
-#' assigning a unique name to each ORF using \code{names(orfGRL)}. In addition, the following
-#' modifications are also applied: 1. If the names of orfGRL are NULL, rename each element as
-#' "orf_1", "orf_2", etc; 2. Strands marked as "*" are replaced with "+"; 3. Remove elements
-#' with multiple chromosomes or strands (one ORF is on multiple chromosomes or different
-#' strands); 4. Remove elements where the ORF length is not divisible by 3; and 5. MOST
-#' IMPORTANTLY, if an ORF is on positive strand, sort by coordinates (seqnames, start, end) in
-#' ascending order. Otherwise, sort by coordinates (seqnames, end, start) in descending order.
-#' The purpose is to achieve the same behavior as \code{\link[GenomicFeatures]{cdsBy}}
-#' function in \code{\link[GenomicFeatures]{GenomicFeatures}} package. (Required).
+#' @param bam A \code{GRanges} or \code{GAlignments} object of reads. Note that the reads
+#' should be already size selected and shifted. Check function \code{shiftReads} on how to
+#' shift reads. Also, for each read, only the 5'-most position is used. (Required).
+#' @param orfGRL A \code{GRangesList} object of ORFs. We recommend assigning a unique name to
+#' each ORF using \code{names(orfGRL)}. In addition, the following modifications are also
+#' applied: 1. If the names of orfGRL are NULL, rename each element as "orf_1", "orf_2", etc;
+#' 2. Strands marked as "*" are replaced with "+"; 3. Remove elements with multiple chromosomes
+#' or strands (one ORF is on multiple chromosomes or different strands); 4. Remove elements
+#' where the ORF length is not divisible by 3; and 5. MOST IMPORTANTLY, if an ORF is on
+#' positive strand, sort by coordinates (seqnames, start, end) in ascending order. Otherwise,
+#' sort by coordinates (seqnames, end, start) in descending order. The purpose is to achieve
+#' the same behavior as \code{cdsBy} function in \code{GenomicFeatures} package. (Required).
 #' @param frameOrder A numeric vector of length 3 showing the frames for each position in each
 #' ORF. By default, the first position in each ORF is frame 1, the second position is frame 2,
 #' and the third position is frame 3. Repeat this pattern afterwards (e.g. 4th position is
@@ -194,9 +192,9 @@
 #' counts in the three frames of an ORF. Must be non-negative and sum up to 1. By default, an
 #' equal null distribution is used in the chi-squared test. (Default: c(1/3, 1/3, 1/3)).
 #'
-#' @return A \code{\link[base]{data.frame}} with 9 columns, specified below: 1. Column 1 is
-#' ORF ID (\code{orfId}, either user specified in \code{orfGRL} or internally generated);  2.
-#' Columns 2 to 4 are the read counts for the three frames where the order is specified by
+#' @return A \code{data.frame} with 9 columns, specified below: 1. Column 1 is ORF ID
+#' (\code{orfId}, either user specified in \code{orfGRL} or internally generated);  2. Columns
+#' 2 to 4 are the read counts for the three frames where the order is specified by
 #' \code{frameOrder} (e.g. \code{frame1Count}, \code{frame2Count}, and \code{frame3Count});
 #' 3. Columns 5 to 7 are the percentages of positive counts for the three frames where the
 #' order is specified by \code{frameOrder} (e.g. \code{frame1PosPct}, \code{frame2PosPct},
@@ -233,8 +231,8 @@ calcORFScore = function(bam, orfGRL, frameOrder=c(1, 2, 3), targetFrame=1, ignor
   }
   if(!(all(is.numeric(frameOrder)) & length(frameOrder) == 3 &
     all(sort(frameOrder) == c(1, 2, 3)))) {
-    stop('frameOrder must be a numeric vector of length 3 containing the combination of
-      c(1, 2, 3).')
+    stop(paste('frameOrder must be a numeric vector of length 3 containing the combination',
+    'of c(1, 2, 3).'))
   }
   if(!(all(is.numeric(targetFrame)) & length(targetFrame) == 1 &
     all(targetFrame %in% c(1, 2, 3)))) {
@@ -244,8 +242,8 @@ calcORFScore = function(bam, orfGRL, frameOrder=c(1, 2, 3), targetFrame=1, ignor
     stop('ignoreStrand must be a logical variable.')
   }
   if(!(all(is.numeric(probNULL)) & all(probNULL >= 0) & sum(probNULL) == 1)) {
-    stop('probNULL must be a numeric vector of length 3, and all elements are non-negative
-      and sum up to 1.')
+    stop(paste('probNULL must be a numeric vector of length 3, and all elements are',
+      'non-negative and sum up to 1.'))
   }
 
   # convert bam to granges and keep only the 5'-most position
@@ -283,7 +281,7 @@ calcORFScore = function(bam, orfGRL, frameOrder=c(1, 2, 3), targetFrame=1, ignor
     orfScore = orfScoreSign * log2(1 + abs(rawORFScore))
   )
   orfScoreDF = orfScoreDF[, c(1, 2:4, 5:7, 9, 10)] # remove ORFScore sign column
-  orfScoreDF = orfScoreDF %>% arrange(desc(orfScore))
+  orfScoreDF = orfScoreDF %>% arrange(dplyr::desc(orfScore))
 
   return(orfScoreDF)
 }

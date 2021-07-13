@@ -15,15 +15,14 @@ loadBam(
 same folder and have the same prefix. For example, if the BAM file is aln.bam, then the BAM
 index file should be aln.bam.bai. (Required).}
 
-\item{param}{A \code{\link[Rsamtools]{ScanBamParam}} object. See \code{Rsamtools} package
-for more details. (Default: ScanBamParam(flag=scanBamFlag(isUnmappedQuery=FALSE,
-isSecondaryAlignment=FALSE, isNotPassingQualityControls=FALSE), mapqFilter=0)).}
+\item{param}{A \code{ScanBamParam} object. See \code{Rsamtools} package for more details.
+(Default: \code{ScanBamParam(flag=scanBamFlag(isUnmappedQuery=FALSE, isSecondaryAlignment=
+FALSE, isNotPassingQualityControls=FALSE), mapqFilter=0)}).}
 }
 \value{
-A \code{\link[GenomicAlignments]{GAlignments}} object of the aligned reads.
+A \code{GAlignments} object of the aligned reads.
 }
 \description{
 Load a BAM file. This function is essentially a wrapper of
-\code{\link[GenomicAlignments]{readGAlignments}}. Note that paried-end reads
-will be treated as single-end.
+\code{readGAlignments}. Note that paried-end reads will be treated as single-end.
 }

@@ -11,10 +11,8 @@
 in CDS start and end regions. Each row is a transcript, each column is a position, and
 value represents read counts in a transcript at a position.}
 
-\item{mode}{A numeric variable (1 or 2) indicating if metagene is a single matrix (mode is
-\enumerate{
-\item or a list of two matrices (mode is 2).
-}}
+\item{mode}{A numeric variable (1 or 2) indicating if metagene is a single matrix (mode
+is 1) or a list of two matrices (mode is 2).}
 
 \item{naVal}{A numeric variable to replace na with. (Default: 0).}
 }

@@ -7,13 +7,11 @@
 readLengthDist(bam)
 }
 \arguments{
-\item{bam}{A \code{\link[GenomicAlignments]{GAlignments}} object of aligned reads.
-(Required).}
+\item{bam}{A \code{GAlignments} object of aligned reads. (Required).}
 }
 \value{
-A \code{\link[base]{data.frame}} with 3 columns (\code{readLen}, \code{count}, and
-\code{pct}) of read length, number of reads with this length, and percentage of reads with
-this length.
+A \code{data.frame} with 3 columns (\code{readLen}, \code{count}, and \code{pct})
+of read length, number of reads with this length, and percentage of reads with this length.
 }
 \description{
 Read length distribution.

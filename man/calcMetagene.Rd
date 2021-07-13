@@ -19,16 +19,15 @@ calcMetagene(
 )
 }
 \arguments{
-\item{bam}{A \code{\link[GenomicAlignments]{GAlignments}} object of aligned reads.
+\item{bam}{A \code{GAlignments} object of aligned reads.
 (Required).}
 
-\item{regionGR}{A \code{\link[GenomicRanges]{GRanges}} object of the target regions to
-calculate metagene. Note that all regions must have equal width. If \code{regionGR} is set,
-\code{txdb} will be ignored. If \code{NULL}, \code{txdb} must be set. (Default: NULL).}
+\item{regionGR}{A \code{GRanges} object of the target regions to calculate metagene. Note
+that all regions must have equal width. If \code{regionGR} is set, \code{txdb} will be
+ignored. If \code{NULL}, \code{txdb} must be set. (Default: NULL).}
 
-\item{txdb}{A \code{\link[GenomicFeatures]{TxDb}} object of genome annotation. See
-\code{GenomicFeatures} package for more details. If \code{NULL}, \code{regionGR} must be
-set. (Default: NULL).}
+\item{txdb}{A \code{TxDb} object of genome annotation. See \code{GenomicFeatures} package
+for more details. If \code{NULL}, \code{regionGR} must be set. (Default: NULL).}
 
 \item{txList}{A character vector of transcript IDs. Note that the transcript IDs set here
 should also be found in the \code{txdb}. (Default: NULL).}
@@ -43,8 +42,9 @@ metagene for both CDS start and end regions will be calculated. In this case, if
 \code{relFreq} to \code{TRUE}, metagene will be normalized by the total read counts in both
 CDS start and end region for each transcript. (Default: TRUE).}
 
-\item{nTx}{A numeric variable of the number of transcripts to sample when \code{txdb} is
-set but \code{txList} is \code{NULL}. (Default: 2000).}
+\item{nTx}{A numeric variable of the number of transcripts to keep when \code{txdb} is
+set but \code{txList} is \code{NULL}. The top \code{nTx} transcripts with the most reads in
+coding start and end regions will be kept. (Default: 2000).}
 
 \item{cdsStartUpstream}{A numeric variable indicating the width to use for the upstream
 region of CDS start site (not including CDS start site) if \code{txdb} is set but
@@ -63,16 +63,22 @@ region of CDS end site (not including CDS end site) if \code{txdb} is set but
 \code{regionGR} is \code{NULL}. (Default: 50).}
 }
 \value{
-A \code{\link[base]{matrix}} of metagene if \code{regionGR} is set or A list of two
-\code{\link[base]{matrix}} of metagene in CDS start and end regions (with names of start and
-end). Each row is a transcript, each column is a position, and a value represents read
-counts or relative frequency for a transcript at a position.
+A \code{list} containing three elements. The first element is metagne, either one
+\code{matrix} if \code{regionGR} is set or a list of two \code{matrices} in CDS start and
+end regions (with names of start and end). Each row is a transcript, each column is a
+position, and a value represents read counts or relative frequency for a transcript at a
+position. The second element is the \code{GRanges} for the metagene, either one range if
+\code{regionGR} is set or a list of two ranges representing the CDS start and end regions.
+This list also contains information of the transcripts selected and flanking sequence
+lengths for CDS start and end. The third element is an internal variable indicating if
+\code{regionGR} is specified or not (1 means \code{regionGR} and 2 means not specified).
 }
 \description{
 Two modes are provided for metagene matrix calculation. If \code{regionGR} is
 specified, metagene will be calculated for the regions given in \code{regionGR}. Otherwise,
 \code{txdb} must be specified. If \code{txList} is specified, metagene will be calculated in
 the CDS start and end regions for the transcripts specified. If \code{txList} is not
-specified, random transcripts will be sampled and metagene matrix will be calculated in the
-CDS start and end regions. Also, the 5'-end position will be kept for the reads.
+specified, the highest-expressed transcripts will be selected and metagene matrix will be
+calculated in the CDS start and end regions. Also, the 5'-end position will be kept for the
+reads.
 }

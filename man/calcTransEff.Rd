@@ -17,26 +17,23 @@ calcTransEff(
 )
 }
 \arguments{
-\item{riboBam}{A \code{\link[GenomicRanges]{GRanges}} or
-\code{\link[GenomicAlignments]{GAlignments}} object of reads. For Ribo-seq data,
+\item{riboBam}{A \code{GRanges} or \code{GAlignments} object of reads. For Ribo-seq data,
 the reads should be already size selected and shifted. Check function \code{shiftReads}
 on how to shift reads. Also, for each read, only the 5'-most position is used. (Required).}
 
-\item{rnaBam}{A \code{\link[GenomicRanges]{GRanges}} or
-\code{\link[GenomicAlignments]{GAlignments}} object of reads. Note that for RNA-seq data,
-there is no need to shift or size select reads. Also, for each read, only the 5'-most
-position is used. (Required).}
+\item{rnaBam}{A \code{GRanges} or \code{GAlignments} object of reads. Note that for
+RNA-seq data, there is no need to shift or size select reads. Also, for each read, only the
+5'-most position is used. (Required).}
 
-\item{orfGRL}{A \code{\link[GenomicRanges]{GRangesList}} object of ORFs. We recommend
-assigning a unique name to each ORF using \code{names(orfGRL)}. In addition, the following
-modifications are also applied: 1. If the names of orfGRL are NULL, rename each element as
-"orf_1", "orf_2", etc; 2. Strands marked as "*" are replaced with "+"; 3. Remove elements
-with multiple chromosomes or strands (one ORF is on multiple chromosomes or different
-strands); 4. Remove elements where the ORF length is not divisible by 3; and 5. MOST
-IMPORTANTLY, if an ORF is on positive strand, sort by coordinates (seqnames, start, end) in
-ascending order. Otherwise, sort by coordinates (seqnames, end, start) in descending order.
-The purpose is to achieve the same behavior as \code{\link[GenomicFeatures]{cdsBy}}
-function in \code{\link[GenomicFeatures]{GenomicFeatures}} package. (Required).}
+\item{orfGRL}{A \code{GRangesList} object of ORFs. We recommend assigning a unique name to
+each ORF using \code{names(orfGRL)}. In addition, the following modifications are also
+applied: 1. If the names of orfGRL are NULL, rename each element as "orf_1", "orf_2", etc;
+2. Strands marked as "*" are replaced with "+"; 3. Remove elements with multiple chromosomes
+or strands (one ORF is on multiple chromosomes or different strands); 4. Remove elements
+where the ORF length is not divisible by 3; and 5. MOST IMPORTANTLY, if an ORF is on
+positive strand, sort by coordinates (seqnames, start, end) in ascending order. Otherwise,
+sort by coordinates (seqnames, end, start) in descending order. The purpose is to achieve
+the same behavior as \code{cdsBy} function in \code{GenomicFeatures} package. (Required).}
 
 \item{riboLibSize}{A positive numeric variable indicating the library size of the Ribo-seq
 reads. By default, we use the number of reads in \code{riboBam} object specified.
@@ -60,11 +57,11 @@ RPKMs calculated before taking log2 transformation in order to prevent producing
 (Default: 1e-03).}
 }
 \value{
-A \code{\link[base]{data.frame}} with 7 columns, specified below: 1. Column 1 is
-ORF ID (\code{orfId}, either user specified in \code{orfGRL} or internally generated);  2.
-Column 2 is trimmed ORF length (\code{orfLenTrimmed}); 3. Column 3 and 4 are the read
-counts for Ribo- and RNA-seq samples (\code{countRibo} and \code{countRNA}) in the trimmed
-ORF region, respectively; Column 5 and 6 are the RPKM values for Ribo- and RNA-seq samples
+A \code{data.frame} with 7 columns, specified below: 1. Column 1 is ORF ID
+(\code{orfId}, either user specified in \code{orfGRL} or internally generated);  2. Column
+2 is trimmed ORF length (\code{orfLenTrimmed}); 3. Column 3 and 4 are the read counts for
+Ribo- and RNA-seq samples (\code{countRibo} and \code{countRNA}) in the trimmed ORF region,
+respectively; Column 5 and 6 are the RPKM values for Ribo- and RNA-seq samples
 (\code{rpkmRibo} and \code{rpkmRNA}), respectively; Column 7 is the calculated translation
 efficiency (log2 transformed).
 }

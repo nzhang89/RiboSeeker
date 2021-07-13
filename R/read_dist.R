@@ -4,12 +4,10 @@
 #'
 #' @description Read length distribution.
 #'
-#' @param bam A \code{\link[GenomicAlignments]{GAlignments}} object of aligned reads.
-#' (Required).
+#' @param bam A \code{GAlignments} object of aligned reads. (Required).
 #'
-#' @return A \code{\link[base]{data.frame}} with 3 columns (\code{readLen}, \code{count}, and
-#' \code{pct}) of read length, number of reads with this length, and percentage of reads with
-#' this length.
+#' @return A \code{data.frame} with 3 columns (\code{readLen}, \code{count}, and \code{pct})
+#' of read length, number of reads with this length, and percentage of reads with this length.
 #'
 #' @export
 #'
@@ -37,10 +35,9 @@ readLengthDist = function(bam) {
 #' @description Genomic feature distribution of aligned reads. Reads are assigned to a feature
 #' based on the following priority: CDS, UTR, Intron, and Intergenic.
 #'
-#' @param bam A \code{\link[GenomicAlignments]{GAlignments}} or
-#' \code{\link[GenomicRanges]{GRanges}} object of aligned reads. (Required).
-#' @param txdb A \code{\link[GenomicFeatures]{TxDb}} object of genome annotation. See
-#' \code{GenomicFeatures} package for more details. (Required).
+#' @param bam A \code{GAlignments} or \code{GRanges} object of aligned reads. (Required).
+#' @param txdb A \code{TxDb} object of genome annotation. See \code{GenomicFeatures} package
+#' for more details. (Required).
 #' @param category A vector of characters. By default, distribution of reads on CDS, UTR,
 #' intron, and intergenic regions is calculated. Must be selected from
 #' \code{c('CDS', 'UTR', 'Intron', 'Intergenic')}. (Default: c('CDS', 'UTR', 'Intron',
@@ -51,9 +48,9 @@ readLengthDist = function(bam) {
 #' @param ignoreStrand A logical variable indicating if ignoring that reads and features must
 #' be on the same strand (Default: TRUE).
 #'
-#' @return A \code{\link[base]{data.frame}} with 3 columns (\code{feature}, \code{count}, and
-#' \code{pct}) of genomic feature, number of reads falling into this feature, and percentage
-#' of reads falling into this feature.
+#' @return A \code{data.frame} with 3 columns (\code{feature}, \code{count}, and \code{pct})
+#' of genomic feature, number of reads falling into this feature, and percentage of reads
+#' falling into this feature.
 #'
 #' @export
 #'
@@ -61,6 +58,7 @@ readLengthDist = function(bam) {
 #' @importFrom IRanges resize reduce countOverlaps
 #' @importFrom GenomicRanges GRanges
 #' @importFrom GenomicFeatures genes exons cds fiveUTRsByTranscript threeUTRsByTranscript
+#' intronsByTranscript
 #' @importFrom dplyr %>% group_by summarize n mutate
 #'
 readGenomeDist = function(bam, txdb, category=c('CDS', 'UTR', 'Intron', 'Intergenic'),

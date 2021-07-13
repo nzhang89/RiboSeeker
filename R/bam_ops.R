@@ -3,17 +3,16 @@
 #' Load a BAM file
 #'
 #' @description Load a BAM file. This function is essentially a wrapper of
-#' \code{\link[GenomicAlignments]{readGAlignments}}. Note that paried-end reads
-#' will be treated as single-end.
+#' \code{readGAlignments}. Note that paried-end reads will be treated as single-end.
 #'
 #' @param bamFile The path of a BAM file. Note that the BAM index file must also exist in the
 #' same folder and have the same prefix. For example, if the BAM file is aln.bam, then the BAM
 #' index file should be aln.bam.bai. (Required).
-#' @param param A \code{\link[Rsamtools]{ScanBamParam}} object. See \code{Rsamtools} package
-#' for more details. (Default: ScanBamParam(flag=scanBamFlag(isUnmappedQuery=FALSE,
-#' isSecondaryAlignment=FALSE, isNotPassingQualityControls=FALSE), mapqFilter=0)).
+#' @param param A \code{ScanBamParam} object. See \code{Rsamtools} package for more details.
+#' (Default: \code{ScanBamParam(flag=scanBamFlag(isUnmappedQuery=FALSE, isSecondaryAlignment=
+#' FALSE, isNotPassingQualityControls=FALSE), mapqFilter=0)}).
 #'
-#' @return A \code{\link[GenomicAlignments]{GAlignments}} object of the aligned reads.
+#' @return A \code{GAlignments} object of the aligned reads.
 #'
 #' @export
 #'
@@ -75,7 +74,7 @@ loadBam = function(bamFile, param=ScanBamParam(flag=scanBamFlag(isUnmappedQuery=
 #' will be shifted to the right, and reads on the negative strand will be shifted
 #' to the left.
 #'
-#' @param bam A \code{\link[GenomicAlignments]{GAlignments}} object of aligned reads.
+#' @param bam A \code{GAlignments} object of aligned reads.
 #' (Required).
 #' @param readLens A vector of read lengths to use (positive). If \code{NULL}, all
 #' lengths will be kept. (Default: NULL).
@@ -87,9 +86,8 @@ loadBam = function(bamFile, param=ScanBamParam(flag=scanBamFlag(isUnmappedQuery=
 #' @param fiveEndOnly A logical variable indicating if only keeping the shifted 5'-end.
 #' (Default: TRUE).
 #'
-#' @return If \code{fiveEndOnly} is \code{TRUE}, return a \code{\link[GenomicRanges]{GRanges}}
-#' object of shifted reads. Otherwise, return a \code{\link[GenomicAlignments]{GAlignments}}
-#' object of shifted reads.
+#' @return If \code{fiveEndOnly} is \code{TRUE}, return a \code{GRanges} object of shifted
+#' reads. Otherwise, return a \code{GAlignments} object of shifted reads.
 #'
 #' @export
 #'

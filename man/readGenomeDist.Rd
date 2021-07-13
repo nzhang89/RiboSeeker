@@ -13,11 +13,10 @@ readGenomeDist(
 )
 }
 \arguments{
-\item{bam}{A \code{\link[GenomicAlignments]{GAlignments}} or
-\code{\link[GenomicRanges]{GRanges}} object of aligned reads. (Required).}
+\item{bam}{A \code{GAlignments} or \code{GRanges} object of aligned reads. (Required).}
 
-\item{txdb}{A \code{\link[GenomicFeatures]{TxDb}} object of genome annotation. See
-\code{GenomicFeatures} package for more details. (Required).}
+\item{txdb}{A \code{TxDb} object of genome annotation. See \code{GenomicFeatures} package
+for more details. (Required).}
 
 \item{category}{A vector of characters. By default, distribution of reads on CDS, UTR,
 intron, and intergenic regions is calculated. Must be selected from
@@ -32,9 +31,9 @@ This option can be used to decrease the ambiguity for reads spanning multiple fe
 be on the same strand (Default: TRUE).}
 }
 \value{
-A \code{\link[base]{data.frame}} with 3 columns (\code{feature}, \code{count}, and
-\code{pct}) of genomic feature, number of reads falling into this feature, and percentage
-of reads falling into this feature.
+A \code{data.frame} with 3 columns (\code{feature}, \code{count}, and \code{pct})
+of genomic feature, number of reads falling into this feature, and percentage of reads
+falling into this feature.
 }
 \description{
 Genomic feature distribution of aligned reads. Reads are assigned to a feature
