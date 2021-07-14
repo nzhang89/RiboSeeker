@@ -48,9 +48,11 @@ readLengthDist = function(bam) {
 #' @param ignoreStrand A logical variable indicating if ignoring that reads and features must
 #' be on the same strand (Default: TRUE).
 #'
-#' @return A \code{data.frame} with 3 columns (\code{feature}, \code{count}, and \code{pct})
-#' of genomic feature, number of reads falling into this feature, and percentage of reads
-#' falling into this feature.
+#' @return A list of two elements. The first is a character vector indicating the genomic
+#' feature assigned for each read. The order is the same as the input bam. The second element
+#' is a \code{data.frame} with 3 columns (\code{feature}, \code{count}, and \code{pct}) of
+#' genomic feature, number of reads falling into this feature, and percentage of reads falling
+#' into this feature.
 #'
 #' @export
 #'
@@ -119,5 +121,5 @@ readGenomeDist = function(bam, txdb, category=c('CDS', 'UTR', 'Intron', 'Interge
   colnames(features) = c('feature', 'count')
   features = features %>% mutate(pct = 100 * count / sum(count))
 
-  return(features)
+  return(list(feature=categoryIndex, summary=features))
 }
