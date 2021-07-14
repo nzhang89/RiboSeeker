@@ -94,13 +94,20 @@
 #'
 #' @return A matrix of metagene.
 #'
-#' @importFrom GenomeInfoDb seqnames seqlevels
+#' @importFrom GenomeInfoDb seqnames seqlevels sortSeqlevels
 #' @importFrom IRanges coverage Views viewApply
 #' @importFrom GenomicRanges GRangesList
-#' @importFrom BiocGenerics do.call cbind
+#' @importFrom BiocGenerics do.call cbind sort
 #'
 .calcMetagene = function(bamGR, regionGR) {
+  # calculate coverage
+  bamGR = sortSeqlevels(bamGR)
+  bamGR = sort(bamGR)
+  cvg = coverage(bamGR)
+
   # split metagene regions by strand
+  regionGR = sortSeqlevels(regionGR)
+  regionGR = sort(regionGR)
   names(regionGR) = as.character(seq(1, length(regionGR)))
   regionGRPos = regionGR[strand(regionGR) == '+' | strand(regionGR) == '*']
   regionGRNeg = regionGR[strand(regionGR) == '-']
@@ -109,9 +116,6 @@
   seqlevels(regionGRNeg) = unique(as.character(seqnames(regionGRNeg)))
   regionGRLPos = GRangesList(split(regionGRPos, seqnames(regionGRPos)), compress=TRUE)
   regionGRLNeg = GRangesList(split(regionGRNeg, seqnames(regionGRNeg)), compress=TRUE)
-
-  # calculate coverage
-  cvg = coverage(bamGR)
 
   # metagene
   metagenePos = viewApply(Views(cvg[names(cvg) %in% names(regionGRLPos)], regionGRLPos),
