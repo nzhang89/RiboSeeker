@@ -433,8 +433,8 @@ calcMetagene = function(bam, regionGR=NULL, txdb=NULL, txList=NULL, readLen=NULL
     metagene = list(start=metageneCDSStart, end=metageneCDSEnd)
 
     if(subsetTx) {
-      message(sprintf('%s Keeping %d transcripts with the highest expression in CDS start
-        and end regions.', .now(), nTx))
+      message(paste(sprintf('%s Keeping %d transcripts with the highest expression', .now(),
+        nTx), 'in CDS start and end regions.'))
       metagene = .subsetMetagene(metagene, nTx)
       cdsRegions$tx = rownames(metagene[[1]])
       cdsRegions$start = cdsRegions$start[which(cdsRegions$start$tx %in% cdsRegions$tx)]
