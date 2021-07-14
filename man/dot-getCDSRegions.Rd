@@ -6,6 +6,7 @@
 \usage{
 .getCDSRegions(
   txdb,
+  bamGR,
   cdsStartUpstream,
   cdsStartDownstream,
   cdsEndUpstream,
@@ -15,6 +16,8 @@
 \arguments{
 \item{txdb}{A TxDb object of genome annotation. See GenomicFeatures package for more
 details.}
+
+\item{bamGR}{A GRanges object of aligned reads.}
 
 \item{cdsStartUpstream}{A numeric variable indicating the width to use for the upstream
 region of CDS start site (not including CDS start site).}
