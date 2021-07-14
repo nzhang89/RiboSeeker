@@ -4,6 +4,7 @@
 #'
 #' @param txdb A TxDb object of genome annotation. See GenomicFeatures package for more
 #' details.
+#' @param bamGR A GRanges object of aligned reads.
 #' @param cdsStartUpstream A numeric variable indicating the width to use for the upstream
 #' region of CDS start site (not including CDS start site).
 #' @param cdsStartDownstream A numeric variable indicating the width to use for the downstream
@@ -24,12 +25,39 @@
 #' @importFrom GenomicRanges makeGRangesFromDataFrame start end width
 #' @importFrom dplyr %>% select group_by filter summarize
 #'
-.getCDSRegions = function(txdb, cdsStartUpstream, cdsStartDownstream, cdsEndUpstream,
+.getCDSRegions = function(txdb, bamGR, cdsStartUpstream, cdsStartDownstream, cdsEndUpstream,
   cdsEndDownstream) {
   # CDS by transcript
   cdsGR = unlist(cdsBy(txdb, by='tx', use.names=TRUE))
   cdsGR$tx = names(cdsGR)
   names(cdsGR) = NULL
+
+  # sort by seqlevels and filter seqlevels
+  bamGR = sortSeqlevels(bamGR)
+  bamGR = sort(bamGR)
+
+  cdsGR = sortSeqlevels(cdsGR)
+  cdsGR = sort(cdsGR)
+
+  if(!all(seqlevels(cdsGR) %in% seqlevels(bamGR))) {
+    message(sprintf('%s seqlevels in bamGR and cdsGR not identical. Use common seqlevels.',
+                    .now()))
+
+    seqlevelsBamGR = seqlevels(bamGR)
+    seqlevelsCDSGR = seqlevels(cdsGR)
+    seqlevelsKeep = intersect(seqlevelsBamGR, seqlevelsCDSGR)
+
+    if(length(seqlevelsKeep) == 0) {
+      stop(paste('No common seqlevels between bamGR and cdsGR.',
+                 'Make sure they are from the same assembly.'))
+    }
+
+    # prune seqlevels
+    cdsGR = keepSeqlevels(cdsGR, seqlevelsKeep, pruning.mode='coarse')
+
+    message(sprintf('%s The following seqlevels are dropped from cdsGR: %s.', .now(),
+      paste(seqlevelsCDSGR[!seqlevelsCDSGR %in% seqlevelsKeep], collapse=',')))
+  }
   cdsGRSeqInfo = seqinfo(cdsGR)
 
   # get cds start and end position
@@ -107,7 +135,7 @@
   regionGR = sortSeqlevels(regionGR)
   regionGR = sort(regionGR)
 
-  if(!all(seqlevels(bamGR) == seqlevels(regionGR))) {
+  if(!all(seqlevels(regionGR) %in% seqlevels(bamGR))) {
     message(sprintf('%s seqlevels in bamGR and regionGR not identical. Use common seqlevels.',
       .now()))
 
@@ -121,11 +149,7 @@
     }
 
     # prune seqlevels
-    bamGR = keepSeqlevels(bamGR, seqlevelsKeep, pruning.mode='coarse')
     regionGR = keepSeqlevels(regionGR, seqlevelsKeep, pruning.mode='coarse')
-
-    message(sprintf('%s The following seqlevels are dropped from bamGR: %s.', .now(),
-      paste(seqlevelsBamGR[!seqlevelsBamGR %in% seqlevelsKeep], collapse=',')))
     message(sprintf('%s The following seqlevels are dropped from regionGR: %s.', .now(),
       paste(seqlevelsRegionGR[!seqlevelsRegionGR %in% seqlevelsKeep], collapse=',')))
   }
@@ -367,7 +391,7 @@ calcMetagene = function(bam, regionGR=NULL, txdb=NULL, txList=NULL, readLen=NULL
     metageneObj = list(metagene=metagene, region=regionGR, mode=mode)
   } else if(mode == 2) {
     # get CDS start and end regions
-    cdsRegions = .getCDSRegions(txdb, cdsStartUpstream, cdsStartDownstream,
+    cdsRegions = .getCDSRegions(txdb, bamGR, cdsStartUpstream, cdsStartDownstream,
       cdsEndUpstream, cdsEndDownstream)
 
     # filter or random sample
