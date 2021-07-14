@@ -6,7 +6,8 @@
 \usage{
 metagenePlot(
   metagene,
-  color = ifelse(metagene$mode == 1, "steelblue", c("red1", "steelblue")),
+  color = ifelse(metagene$mode == 1, list("steelblue"), list(c("red1",
+    "steelblue")))[[1]],
   metageneFun = c("mean", "median")
 )
 }
