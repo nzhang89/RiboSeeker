@@ -20,7 +20,7 @@ a position. The second element is the \code{GRanges} for the metagene, either on
 \code{regionGR} is set or a list of two ranges representing the CDS start and end regions.
 This list also contains information of the transcripts selected and flanking sequence
 lengths for CDS start and end. The third element is an internal variable indicating if
-\code{regionGR} is specified or not (1 means \code{regionGR} and 2 means not specified).
+\code{regionGR} is specified or not (1 means \code{regionGR} is set and 2 means not set).
 Check \code{calcMetagene} function to see more details of metagene calculation and output
 object. The \code{metagene} must be output from \code{calcMetagene} function. (Required).}
 

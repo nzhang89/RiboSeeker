@@ -31,9 +31,11 @@ This option can be used to decrease the ambiguity for reads spanning multiple fe
 be on the same strand (Default: TRUE).}
 }
 \value{
-A \code{data.frame} with 3 columns (\code{feature}, \code{count}, and \code{pct})
-of genomic feature, number of reads falling into this feature, and percentage of reads
-falling into this feature.
+A list of two elements. The first is a character vector indicating the genomic
+feature assigned for each read. The order is the same as the input bam. The second element
+is a \code{data.frame} with 3 columns (\code{feature}, \code{count}, and \code{pct}) of
+genomic feature, number of reads falling into this feature, and percentage of reads falling
+into this feature.
 }
 \description{
 Genomic feature distribution of aligned reads. Reads are assigned to a feature
