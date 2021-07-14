@@ -1,0 +1,222 @@
+---
+title: "RiboSeeker Guide"
+author: "Ning Zhang"
+date: "7/13/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=TRUE, message=FALSE, warning=FALSE)
+```
+
+<hr>
+
+### Introduction
+
+RiboSeeker is an R package for ribosome profiling data analysis. It has two components:
+
+* [Ribomake](https://github.com/nzhang89/Ribomake): a Snakemake workflow to process ribosome 
+profiling data from raw reads
+* [RiboSeeker](https://github.com/nzhang89/RiboSeeker): an R package for further data analysis
+from aligned reads
+
+<br>
+
+### Quick Start
+
+Here, we focus on using the RiboSeeker R package for Ribo-seq data analysis. The example data
+used are from a human K562 ribosome profiling dataset
+([https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSM3566410](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSM3566410)).
+We run through the Ribomake workflow using hg38 human genome and Ensembl 98 annotation.
+
+<br>
+
+#### Set up packages and data
+
+First install and load RiboSeeker and several other packages to run the example data.
+
+```{r package}
+library(GenomicAlignments) # deals with bam alignments
+library(GenomicFeatures) # deals with genome annotations
+library(GenomicRanges) # deals with general genomic data
+library(ggplot2) # deals with visualizations
+
+library(RiboSeeker)
+```
+
+Then specify the example data files. We only take the reads aligned to chromosome 1 to minimize
+the running time and storage space.
+
+```{r data}
+# example data folder
+example_folder = system.file('extdata', package='RiboSeeker')
+
+# bam file
+bam_file = file.path(example_folder, 'GSM3566410.chr1.sorted.bam')
+# genome annotation txdb file
+txdb_file = file.path(example_folder, 'hg38.Ens_98.protein_coding.txdb.sqlite')
+
+# # alternatively, you can use bioconductor human annotation package
+# if (!requireNamespace('BiocManager', quietly=TRUE)) {
+#   install.packages("BiocManager")
+# }
+# BiocManager::install('TxDb.Hsapiens.UCSC.hg38.knownGene')
+# library(TxDb.Hsapiens.UCSC.hg38.knownGene)
+```
+
+Next load BAM and TxDb files. We use `loadBam` function to load an indexed bam file and return
+a `GAlignments` object of aligned reads. The `loadBam` function is essentially a wrapper of
+`readGAlignments` function in `GenomicAlignments` package. **Note** that Ribo-seq data are 
+typically single-end, the paired RNA-seq data can be paired-end. Since the single- or
+paired-end information is not very important in Ribo-seq data analysis, we simply treat all
+BAM files as single-end. A message will be printed out if paired-end BAM file is detected.
+
+```{r load_data}
+# load bam file
+bam = loadBam(bam_file)
+bam
+
+# load txdb file
+txdb = loadDb(txdb_file)
+
+# alternatively, you can use bioconductor human annotation txdb object
+# txdb = TxDb.Hsapiens.UCSC.hg38.knownGene
+```
+
+<br>
+
+#### Read length distribution
+
+Ribo-seq reads, or ribosome protected fragments (RPFs) tend to have a specific length 
+distribution. Usually the RPFs are around 30 bp. We implement `readLengthDist` function to 
+count the number and percentage of reads for each read length. The function 
+`readLengthDistPlot` can be used to plot the read length distribution (percentage or actual
+read counts) as a barplot.
+
+```{r read_len_dist}
+# read length distribution
+read_len_dist = readLengthDist(bam)
+read_len_dist
+```
+
+```{r read_len_dist_plot, fig.width=7, fig.height=4}
+# read length distribution plot
+p = readLengthDistPlot(read_len_dist, color='steelblue', type='pct')
+p
+```
+
+If you run through the Ribomake workflow, it will also generate a read length distribution
+plot. You might notice the distribution is somehow different than presented here. There might
+be two reasons: 1. the example data presented here only include reads aligned to chromosome 1;
+and 2. here we take all aligned reads regardless of where they are mapped (for example, reads
+aligned to intergenic regions are also counted here). But the Ribomake workflow only takes 
+reads that are aligned to transcripts.
+
+<br>
+
+#### Genomic feature distribution of aligned reads
+
+It may also be interesting to see where the reads are aligned on the genome. We implement 
+`readGenomeDist` function to assign reads to genomic features such as CDS, UTR, Intron, and
+Intergenic. This function resizes reads to its 5'-end positions to minimize overlap with 
+multiple features. It returns a list of two elements, the first is the genomic feature
+assignment for each read, and the second is the summary statistics for user specified genomic
+features.
+
+```{r read_feature_dist}
+# read genomic feature distribution
+read_feature_dist = readGenomeDist(bam, txdb, category=c('CDS', 'UTR', 'Intron', 'Intergenic'), 
+  fiveEndOnly=TRUE, ignoreStrand=TRUE)
+read_feature_dist$summary
+```
+
+```{r read_feature_dist_plot, fig.width=7, fig.height=2}
+# read genomic feature distribution plot
+p = readGenomeDistPlot(read_feature_dist$summary, type='pct')
+p
+```
+
+We can see that for this example dataset, most reads are assigned to CDS and UTR.
+What is interesting about the full dataset is that if we take all the reads aligned to all
+chromosomes, the most majority of reads are actually assigned to intergenic regions.
+
+<br>
+
+#### Metagene
+
+A very useful and important plot in Ribo-seq data analysis is the metagene plot, especially
+around CDS start (start codon) and CDS end (stop codon) regions. Due to the large size of the
+ribosome, the 5'-end of RPFs are actually upstream of the ribosome P-site. This shift is called
+**P-site offset**. Metagene plot is a good way to determine the P-site offset.
+
+We implement `calcMetagene` and `metagenePlot` function to compute the metagene matrix and make
+the plot. For metagene matrix calculation, we require a BAM alignment and a metagene region.
+Similar with genomic feature plot, we also take only the 5'-end position for each read. If the
+region is not specified, we will extract all CDS start and end regions from the TxDb
+annotation. Then the metagene matrix is calculated using either user specified region or the 
+extracted two CDS start and end regions. Each row in the metagene matrix represents a
+transcript, and each column represents a position in the metagene region. We also provide the
+option to normalize row-wise the counts to the total counts in each row.
+
+For metagene plot, one plot will be made if the metagene region is specified by users. 
+Otherwise, two plots around CDS start and end regions will be made. Position 0 in CDS start
+means the first base of the start codon, and position 0 in CDS end means the last base of the
+stop codon.
+
+```{r metagene}
+# metagene
+metagene = calcMetagene(bam, txdb=txdb)
+```
+
+```{r metagene_plot, fig.width=13, fig.height=5}
+# metagene plot
+p = metagenePlot(metagene, metageneFun='mean')
+p
+```
+
+From the metagene plot, we do not specify the metagene region and use the extracted CDS start
+and end regions. We can see a large peak at -12 position in CDS start regions. Therefore, we
+can determine that the P-site offset for this example dataset is 12 bp. In fact, the 12 bp 
+offset is a very common number for many Ribo-seq experiments. For CDS end regions, we can also
+see a large peak at -17 position. This also makes sense, because if we shift the reads 12 bp
+downstream, this peak will be at -5 position, which is exactly the P-site position since 
+position -5, -4, -3 is the last codon before stop codon, and position -2, -1, and 0 is the
+stop codon.
+
+<br>
+
+#### Shift reads
+
+From the read length distribution and the metagene plots, we can determine the most abundant
+read lengths and the P-site offset. For this example dataset, we can take 28 bp reads with 12
+bp P-site offset. Before downstream analysis, reads needs to be shifted. We implement 
+`shiftReads` function to select certain read lengths and shift reads towards downstream
+direction.
+
+```{r shift_read}
+# shift reads
+# here we do not select read length but shift all reads 12 bp downstream
+# set fiveEndOnly to FALSE will return a GAlignments object instead of a GRanges object
+bam_shift = shiftReads(bam, shiftLens=12, fiveEndOnly=FALSE)
+bam_shift
+```
+
+We can also make a metagene plot using the shifted reads. In this case, we can see the large
+peak should be aligned at exactly position 0, which is the start codon.
+
+```{r shift_read_metagene_plot, fig.width=13, fig.height=5}
+# metagene plot
+p = metagenePlot(calcMetagene(bam_shift, txdb=txdb), metageneFun='mean')
+p
+```
+
+<br>
+
+#### Further analysis
+
+<br>
+
+## Session Info
+```{r session, echo=FALSE, message=FALSE, warning=FALSE}
+sessionInfo()
+```
