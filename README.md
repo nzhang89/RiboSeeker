@@ -20,4 +20,5 @@ devtools::install_github('nzhang89/RiboSeeker')
 
 ### Usage
 
-We provide a simple [tutorial]() to demonstrate the basic usage of the RiboSeeker R package.
+We provide a simple [tutorial](https://nzhang89.github.io/RiboSeeker/rmd/RiboSeeker.html) to
+demonstrate the basic usage of the RiboSeeker R package.
