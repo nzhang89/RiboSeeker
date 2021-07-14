@@ -94,20 +94,46 @@
 #'
 #' @return A matrix of metagene.
 #'
-#' @importFrom GenomeInfoDb seqnames seqlevels sortSeqlevels
+#' @importFrom GenomeInfoDb seqnames seqlevels sortSeqlevels keepSeqlevels
 #' @importFrom IRanges coverage Views viewApply
 #' @importFrom GenomicRanges GRangesList
 #' @importFrom BiocGenerics do.call cbind sort
 #'
 .calcMetagene = function(bamGR, regionGR) {
-  # calculate coverage
+  # sort by seqlevels and filter seqlevels
   bamGR = sortSeqlevels(bamGR)
   bamGR = sort(bamGR)
+
+  regionGR = sortSeqlevels(regionGR)
+  regionGR = sort(regionGR)
+
+  if(!all(seqlevels(bamGR) == seqlevels(regionGR))) {
+    message(sprintf('%s seqlevels in bamGR and regionGR not identical. Use common seqlevels.',
+      .now()))
+
+    seqlevelsBamGR = seqlevels(bamGR)
+    seqlevelsRegionGR = seqlevels(regionGR)
+    seqlevelsKeep = intersect(seqlevelsBamGR, seqlevelsRegionGR)
+
+    if(length(seqlevelsKeep) == 0) {
+      stop(paste('No common seqlevels between bamGR and regionGR.',
+        'Make sure they are from the same assembly.'))
+    }
+
+    # prune seqlevels
+    bamGR = keepSeqlevels(bamGR, seqlevelsKeep, pruning.mode='coarse')
+    regionGR = keepSeqlevels(regionGR, seqlevelsKeep, pruning.mode='coarse')
+
+    message(sprintf('%s The following seqlevels are dropped from bamGR: %s.', .now(),
+      paste(seqlevelsBamGR[!seqlevelsBamGR %in% seqlevelsKeep], collapse=',')))
+    message(sprintf('%s The following seqlevels are dropped from regionGR: %s.', .now(),
+      paste(seqlevelsRegionGR[!seqlevelsRegionGR %in% seqlevelsKeep], collapse=',')))
+  }
+
+  # calculate coverage
   cvg = coverage(bamGR)
 
   # split metagene regions by strand
-  regionGR = sortSeqlevels(regionGR)
-  regionGR = sort(regionGR)
   names(regionGR) = as.character(seq(1, length(regionGR)))
   regionGRPos = regionGR[strand(regionGR) == '+' | strand(regionGR) == '*']
   regionGRNeg = regionGR[strand(regionGR) == '-']
@@ -246,7 +272,7 @@
 #' \code{regionGR} is set or a list of two ranges representing the CDS start and end regions.
 #' This list also contains information of the transcripts selected and flanking sequence
 #' lengths for CDS start and end. The third element is an internal variable indicating if
-#' \code{regionGR} is specified or not (1 means \code{regionGR} and 2 means not specified).
+#' \code{regionGR} is specified or not (1 means \code{regionGR} is set and 2 means not set).
 #'
 #' @importFrom methods is as
 #' @importFrom GenomicAlignments qwidth
