@@ -6,7 +6,7 @@
 \usage{
 .getCDSRegions(
   txdb,
-  bamGR,
+  seqInfoKeep,
   cdsStartUpstream,
   cdsStartDownstream,
   cdsEndUpstream,
@@ -17,7 +17,7 @@
 \item{txdb}{A TxDb object of genome annotation. See GenomicFeatures package for more
 details.}
 
-\item{bamGR}{A GRanges object of aligned reads.}
+\item{seqInfoKeep}{A Seqinfo object specifying which seqlevels in txdb to keep.}
 
 \item{cdsStartUpstream}{A numeric variable indicating the width to use for the upstream
 region of CDS start site (not including CDS start site).}
