@@ -140,7 +140,7 @@
 #'
 #' @return A matrix of metagene.
 #'
-#' @importFrom GenomeInfoDb seqinfo seqnames seqlevels sortSeqlevels
+#' @importFrom GenomeInfoDb seqnames seqlevels sortSeqlevels
 #' @importFrom IRanges coverage Views viewApply
 #' @importFrom GenomicRanges GRangesList
 #' @importFrom BiocGenerics do.call cbind sort
