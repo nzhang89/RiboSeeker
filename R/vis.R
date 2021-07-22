@@ -277,6 +277,9 @@ metagenePlot = function(metagene, color=ifelse(metagene$mode == 1, list('steelbl
     if(!(is.matrix(metagene$metagene) & is(metagene$region, 'GRanges'))) {
       stop('metagene must be output from calcMetagene function.')
     }
+    if(!(length(color) == 1 & all(is.character(color)))) {
+      stop('color must be a character variable.')
+    }
   } else if(metagene$mode == 2) {
     if(!(is.list(metagene$metagene) & length(metagene$metagene) == 2 &
       !is.null(names(metagene$metagene)) & all(names(metagene$metagene) == c('start', 'end'))
@@ -301,6 +304,9 @@ metagenePlot = function(metagene, color=ifelse(metagene$mode == 1, list('steelbl
       length(metagene$region$endFlankLength) == 2 &
       all(metagene$region$endFlankLength > 0))) {
       stop('metagene must be output from calcMetagene function.')
+    }
+    if(!(length(color) == 2 & all(is.character(color)))) {
+      stop('color must be a character vector of length 2.')
     }
   }
 
