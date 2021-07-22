@@ -13,7 +13,7 @@ all regions must have equal width.}
 \item{seqInfoKeep}{A Seqinfo object specifying which seqlevels in regionGR to keep.}
 }
 \value{
-
+A GRanges object of the target region where the seqlevels are filtered.
 }
 \description{
 Filter seqlevels

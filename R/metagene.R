@@ -6,7 +6,7 @@
 #' all regions must have equal width.
 #' @param seqInfoKeep A Seqinfo object specifying which seqlevels in regionGR to keep.
 #'
-#' @return
+#' @return A GRanges object of the target region where the seqlevels are filtered.
 #'
 #' @importFrom BiocGenerics sort
 #' @importFrom GenomeInfoDb sortSeqlevels seqlevels keepSeqlevels
