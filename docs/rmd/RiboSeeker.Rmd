@@ -1,7 +1,7 @@
 ---
 title: "RiboSeeker Guide"
 author: "Ning Zhang"
-date: "7/13/2021"
+date: "7/21/2021"
 output: html_document
 ---
 
@@ -45,7 +45,8 @@ library(RiboSeeker)
 ```
 
 Then specify the example data files. We only take the reads aligned to chromosome 1 to minimize
-the running time and storage space.
+the running time and storage space. For genome annotation, we also only take chromosome 1
+annotations.
 
 ```{r data}
 # example data folder
@@ -54,7 +55,7 @@ example_folder = system.file('extdata', package='RiboSeeker')
 # bam file
 bam_file = file.path(example_folder, 'GSM3566410.chr1.sorted.bam')
 # genome annotation txdb file
-txdb_file = file.path(example_folder, 'hg38.Ens_98.protein_coding.txdb.sqlite')
+txdb_file = file.path(example_folder, 'hg38.Ens_98.chr1.txdb.sqlite')
 
 # # alternatively, you can use bioconductor human annotation package
 # if (!requireNamespace('BiocManager', quietly=TRUE)) {
