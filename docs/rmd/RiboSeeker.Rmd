@@ -238,7 +238,7 @@ equal null distribution p = c(1/3, 1/3, 1/3). Also, if frame 1 has more reads th
 3, the sign of ORFScore will be positive, and negative otherwise. So in summary, ORFScore is a
 simple way to check if the reads follows the three-nucleotide periodicity.
 
-We implement `calcORFScore` function to calculate ORFScore given the aligned reads and ORF
+We implement `calcORFScore` function to calculate ORFScore given aligned reads and ORF
 coordinates.
 
 * The aligned reads should be output from `shiftReads` function.
@@ -284,6 +284,25 @@ the target frame. An example would be an ORF has 300 positions. Frame 1 has 100 
 and frame 2 and 3 has 0 read counts. But all the 100 read counts for frame 1 are located in 
 the same position. In this case, the ORFScore will be large (if frame 1 is the target frame), 
 but frame1PosPct is small (only 1%). This ORF might be more likely to be a false positive.
+
+<br>
+
+##### ORF expression
+
+We can also calculate the total counts and normalized expression (e.g. read counts per kilo 
+base per million reads, RPKM). We implement `calcRPKM` function to calculate read counts and
+RPKM values given aligned reads and ORF coordinates.
+
+Also, from the above metagene plots, reads tend to stack at coding start and end regions for
+Ribo-seq data. So we add the option to trim from both ORF ends. By default, 6 bp or two codons
+are trimmed from ORF start and end.
+
+```{r orf_expr}
+# we use all shifted reads here
+orf_rpkm = calcRPKM(bam_shift, canonical_orfs)
+
+rmarkdown::paged_table(orf_rpkm)
+```
 
 <br>
 
