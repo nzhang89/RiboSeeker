@@ -93,7 +93,7 @@
   # rebuild GrangesList
   orfGRLStd = makeGRangesListFromDataFrame(orfDF, split.field='group',
     seqinfo=seqinfo(orfGRL), keep.extra.columns=TRUE)
-  names(orfGRLStd) = names(orfGRL)
+  names(orfGRLStd) = unique(orfDF$group_name)
 
   return(orfGRLStd)
 }
@@ -150,7 +150,7 @@
 .getRawORFScore = function(frameCounts, p) {
   rawORFScore = NA
   if(max(frameCounts) > 0) {
-    rawORFScore = chisq.test(frameCounts, p=p)$statistic
+    rawORFScore = suppressWarnings(chisq.test(frameCounts, p=p)$statistic)
   }
   names(rawORFScore) = NULL
 
@@ -282,6 +282,7 @@ calcORFScore = function(bam, orfGRL, frameOrder=c(1, 2, 3), targetFrame=1, ignor
   )
   orfScoreDF = orfScoreDF[, c(1, 2:4, 5:7, 9, 10)] # remove ORFScore sign column
   orfScoreDF = orfScoreDF %>% arrange(dplyr::desc(orfScore))
+  orfScoreDF = as.data.frame(orfScoreDF)
 
   return(orfScoreDF)
 }
