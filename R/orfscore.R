@@ -76,8 +76,8 @@
   if(nrow(orfDFSummary) == 0) {
     stop('No ORF passes filtering.')
   }
-  message(sprintf('%s %d out of %d ORFs are kept.', .now(), nrow(orfDFSummary),
-    length(orfGRL)))
+  message(sprintf('%s %d out of %d ORFs are kept after above filtering.', .now(),
+    nrow(orfDFSummary), length(orfGRL)))
 
   orfDF = orfDF %>% filter(group %in% unique(orfDFSummary$group))
 
