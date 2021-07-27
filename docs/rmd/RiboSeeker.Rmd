@@ -223,10 +223,10 @@ p
 
 #### Further analysis
 
-<br>
-
 After shifting reads, we can perform further analyses. Here, we show the calculation of 
 ORFScore and ORF expression.
+
+<br>
 
 ##### ORFScore
 
@@ -272,15 +272,20 @@ orfscore = calcORFScore(bam_shift_28bp, canonical_orfs)
 rmarkdown::paged_table(orfscore)
 ```
 
+<br>
+
 The result is a dataframe of ORFScore related stats, including the read counts for the three
-frames, the raw ORFScore (Chi-squared test statistic) and the log2 transformed ORFScore. The
-three columns (frame1PosPct, frame2PosPct, and frame3PosPct) summarize the proportion of frame
-1, 2, and 3 positions having non-zero read counts. The purpose of these three columns is to 
-help filtering ORFs with high ORFScore, but the reads only show up in very few positions in 
+frames, the raw ORFScore (Chi-squared test statistic) and the log2 transformed ORFScore.
+
+The three columns (frame1PosPct, frame2PosPct, and frame3PosPct) summarize the proportion of
+frame 1, 2, and 3 positions having non-zero read counts. The purpose of these three columns is
+to help filtering ORFs with high ORFScore, but the reads only show up in very few positions in 
 the target frame. An example would be an ORF has 300 positions. Frame 1 has 100 read counts, 
 and frame 2 and 3 has 0 read counts. But all the 100 read counts for frame 1 are located in 
 the same position. In this case, the ORFScore will be large (if frame 1 is the target frame), 
 but frame1PosPct is small (only 1%). This ORF might be more likely to be a false positive.
+
+<br>
 
 ## Session Info
 ```{r session, echo=FALSE, message=FALSE, warning=FALSE}
