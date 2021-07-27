@@ -25,6 +25,7 @@
 
   # work with a dataframe version of orfGRL as a personal preference
   orfDF = as.data.frame(orfGRL)
+  colnames(orfDF) = make.names(colnames(orfDF), unique=TRUE)
 
   # split into positive and negative strand
   orfDFPos = orfDF %>% filter(strand == '+')
@@ -61,11 +62,13 @@
   orfDF = orfDF %>% filter(valid1 & valid2) %>% select(group, group_name, seqnames,
     trimmedStart, trimmedEnd, strand)
   colnames(orfDF) = c('group', 'group_name', 'seqnames', 'start', 'end', 'strand')
+  message(sprintf('%s %d ORFs are kept after trimming both ends.', .now(),
+    length(unique(orfDF$group))))
 
   # rebuild GrangesList
   orfGRLTrimmed = makeGRangesListFromDataFrame(orfDF, split.field='group',
     seqinfo=seqinfo(orfGRL), keep.extra.columns=TRUE)
-  names(orfGRLTrimmed) = names(orfGRL)
+  names(orfGRLTrimmed) = unique(orfDF$group_name)
 
   return(orfGRLTrimmed)
 }
@@ -153,6 +156,7 @@ calcRPKM = function(bam, orfGRL, libSize=length(bam), trimStart=6, trimEnd=6,
   rpkmDF = rpkmDF %>% mutate(
     rpkmORF = (1e+06 / libSize) * (1e+03 / orfLenTrimmed) * countORF
   )
+  rownames(rpkmDF) = NULL
 
   return(rpkmDF)
 }
@@ -212,7 +216,6 @@ calcRPKM = function(bam, orfGRL, libSize=length(bam), trimStart=6, trimEnd=6,
 calcTransEff = function(riboBam, rnaBam, orfGRL, riboLibSize=length(riboBam),
   rnaLibSize=length(rnaBam), trimStart=6, trimEnd=6, ignoreStrand=TRUE,
   pseudoCount=1e-03) {
-  # sanity check
   # sanity check
   if(!is(riboBam, 'GRanges') & !is(riboBam, 'GAlignments')) {
     stop('riboBam must be a GRanges or GAlignments object.')
