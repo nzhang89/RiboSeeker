@@ -66,9 +66,12 @@
     length(unique(orfDF$group))))
 
   # rebuild GrangesList
+  orfGRLTrimmedNames = unique(orfDF$group_name)
+  names(orfGRLTrimmedNames) = unique(orfDF$group)
+
   orfGRLTrimmed = makeGRangesListFromDataFrame(orfDF, split.field='group',
     seqinfo=seqinfo(orfGRL), keep.extra.columns=TRUE)
-  names(orfGRLTrimmed) = unique(orfDF$group_name)
+  names(orfGRLTrimmed) = orfGRLTrimmedNames[names(orfGRLTrimmed)]
 
   return(orfGRLTrimmed)
 }

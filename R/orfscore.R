@@ -91,9 +91,12 @@
   orfDF = rbind(orfDFPos, orfDFNeg)
 
   # rebuild GrangesList
+  orfGRLStdNames = unique(orfDF$group_name)
+  names(orfGRLStdNames) = unique(orfDF$group)
+
   orfGRLStd = makeGRangesListFromDataFrame(orfDF, split.field='group',
     seqinfo=seqinfo(orfGRL), keep.extra.columns=TRUE)
-  names(orfGRLStd) = unique(orfDF$group_name)
+  names(orfGRLStd) = orfGRLStdNames[names(orfGRLStd)]
 
   return(orfGRLStd)
 }
