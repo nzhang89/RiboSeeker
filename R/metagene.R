@@ -399,7 +399,7 @@ calcMetagene = function(bam, regionGR=NULL, txdb=NULL, txList=NULL, readLen=NULL
     txKeep = NULL
     subsetTx = FALSE
     if(!is.null(txList)) { # external tx list is set
-      txKeep = which(cdsRegions$tx %in% txList)
+      txKeep = cdsRegions$tx[which(cdsRegions$tx %in% txList)]
 
       if(length(txKeep) == 0) {
         stop('No transcript can be found in txdb.')
