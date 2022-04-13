@@ -265,6 +265,8 @@
 #' should also be found in the \code{txdb}. (Default: NULL).
 #' @param readLen A vector of read lengths to use (positive). If \code{NULL}, all
 #' lengths will be kept. (Default: NULL).
+#' @param fiveEndOnly A logical variable indicating if only keeping the 5'-ends of reads.
+#' This option can be used to increase the resolution of Ribo-seq reads. (Default: TRUE).
 #' @param relFreq A logical variable indicating if transcript wise relative frequency (
 #' normalized by the total read counts in each metagene region) should be returned instead of
 #' raw read counts. Note that if \code{txdb} is set but \code{regionGR} is \code{NULL},
@@ -306,7 +308,7 @@
 #' @export
 #'
 calcMetagene = function(bam, regionGR=NULL, txdb=NULL, txList=NULL, readLen=NULL,
-  relFreq=TRUE, nTx=2000, cdsStartUpstream=50, cdsStartDownstream=50,
+  fiveEndOnly=TRUE, relFreq=TRUE, nTx=2000, cdsStartUpstream=50, cdsStartDownstream=50,
   cdsEndUpstream=50, cdsEndDownstream=50) {
   # sanity check
   if(!is(bam, 'GAlignments')) {
@@ -317,6 +319,9 @@ calcMetagene = function(bam, regionGR=NULL, txdb=NULL, txList=NULL, readLen=NULL
       stop('When readLen is not NULL, it must contain at least one element.')
     }
     readLen = round(unique(as.numeric(readLen)))
+  }
+  if(!is.logical(fiveEndOnly)) {
+    stop('fiveEndOnly must be a logical variable.')
   }
   if(!is.logical(relFreq)) {
     stop('relFreq must be a logical variable.')
@@ -381,8 +386,12 @@ calcMetagene = function(bam, regionGR=NULL, txdb=NULL, txList=NULL, readLen=NULL
   if(!is.null(readLen)) {
     bam = bam[qwidth(bam) %in% readLen] # select by read length
   }
+  
+  # to granges
   bamGR = as(bam, 'GRanges')
-  bamGR = resize(bamGR, width=1)
+  if(fiveEndOnly) {
+    bamGR = resize(as(bam, 'GRanges'), width=1)
+  }
 
   # metagene
   metageneObj = NULL

@@ -10,6 +10,7 @@ calcMetagene(
   txdb = NULL,
   txList = NULL,
   readLen = NULL,
+  fiveEndOnly = TRUE,
   relFreq = TRUE,
   nTx = 2000,
   cdsStartUpstream = 50,
@@ -34,6 +35,9 @@ should also be found in the \code{txdb}. (Default: NULL).}
 
 \item{readLen}{A vector of read lengths to use (positive). If \code{NULL}, all
 lengths will be kept. (Default: NULL).}
+
+\item{fiveEndOnly}{A logical variable indicating if only keeping the 5'-ends of reads.
+This option can be used to increase the resolution of Ribo-seq reads. (Default: TRUE).}
 
 \item{relFreq}{A logical variable indicating if transcript wise relative frequency (
 normalized by the total read counts in each metagene region) should be returned instead of
